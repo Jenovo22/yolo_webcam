@@ -674,5 +674,4 @@ o:
 
 ```text
 http://IP_DE_LA_RASPBERRY:3001
-```#   y o l o _ w e b c a m  
- 
+```
