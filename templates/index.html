@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Raspberry Pi - YOLO en tiempo real</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #f5f5f5;
+            text-align: center;
+        }
+
+        header {
+            padding: 20px;
+            background: #1f1f1f;
+            border-bottom: 1px solid #333;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #aaa;
+            margin-top: 8px;
+        }
+
+        .container {
+            padding: 24px;
+        }
+
+        .video-box {
+            display: inline-block;
+            background: #222;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #444;
+        }
+
+        img {
+            width: 90vw;
+            max-width: 960px;
+            border-radius: 8px;
+        }
+
+        .info {
+            margin-top: 18px;
+            color: #ccc;
+            font-size: 15px;
+        }
+
+        .status {
+            margin-top: 12px;
+            color: #8ee88e;
+            font-size: 14px;
+        }
+
+        code {
+            background: #222;
+            padding: 3px 6px;
+            border-radius: 4px;
+            color: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Detección en tiempo real con YOLO</h1>
+        <div class="subtitle">Raspberry Pi + Cámara + Modelo .pt</div>
+    </header>
+
+    <div class="container">
+        <div class="video-box">
+            <img src="{{ url_for('video_feed') }}" alt="Video en tiempo real">
+        </div>
+
+        <div class="info">
+            <p>Modelo cargado desde: <code>best.pt</code></p>
+            <p>Confianza: <code>{{ confidence }}</code> | Tamaño de inferencia: <code>{{ img_size }}</code></p>
+            <p>Servidor: <code>http://IP_DE_LA_RASPBERRY:{{ port }}</code></p>
+        </div>
+
+        <div class="status" id="status">
+            Cargando estado...
+        </div>
+    </div>
+
+    <script>
+        async function updateStatus() {
+            try {
+                const response = await fetch("/status");
+                const data = await response.json();
+
+                const status = document.getElementById("status");
+
+                status.innerHTML = `
+                    FPS: ${data.fps} |
+                    Inferencia: ${data.inference_ms} ms |
+                    Cámara: ${data.camera_index}
+                    ${data.last_error ? "<br>Error: " + data.last_error : ""}
+                `;
+            } catch (error) {
+                document.getElementById("status").innerText =
+                    "No se pudo obtener el estado del sistema.";
+            }
+        }
+
+        setInterval(updateStatus, 1000);
+        updateStatus();
+    </script>
+</body>
+</html>
